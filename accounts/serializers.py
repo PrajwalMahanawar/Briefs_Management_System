@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from .models import Competition
+
 
 User = get_user_model()
 
@@ -31,8 +33,7 @@ class SignupSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop("password_confirm")
-        password = validated_data.pop("password")
-        user = User.objects.create_user(password=password, **validated_data)
+        user = User.objects.create_user(**validated_data)
         return user
 
 
@@ -54,3 +55,31 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
             "created_at": self.user.created_at,
         }
         return data
+
+
+class CompetitionSerializer(serializers.ModelSerializer):
+    created_by = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Competition
+        fields = [
+            "id",
+            "brand",
+            "name",
+            "description",
+            "start_date",
+            "end_date",
+            "created_by",
+            "created_at",
+        ]
+
+    def validate(self, attrs):
+        start_date = attrs.get("start_date", getattr(self.instance, "start_date", None))
+        end_date = attrs.get("end_date", getattr(self.instance, "end_date", None))
+
+        if start_date and end_date and start_date > end_date:
+            raise serializers.ValidationError(
+                {"end_date": "End date must be after start date."}
+            )
+
+        return attrs
