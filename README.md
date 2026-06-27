@@ -1,4 +1,4 @@
-# SkillzCollab Briefs Management System
+# Briefs Management System
 
 A full-stack enterprise workflow platform developed during my internship at SkillzCollab. The system was designed to manage competition briefs, collaborative workflows, analytics, and recommendation features using Django REST Framework, PostgreSQL, and React (Next.js).
 
